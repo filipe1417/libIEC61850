@@ -57,13 +57,16 @@ main(int argc, char **argv)
         GoosePublisher_setDataSetRef(publisher, "simpleIOGenericIO/LLN0$AnalogValues");
         GoosePublisher_setTimeAllowedToLive(publisher, 500);
 
-        int i = 0;
+        if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
+                    printf("Error sending message!\n");
+                }
+	/* int i = 0;
 
         for (i = 0; i < 4; i++) {
             Thread_sleep(1000);
 
             if (i == 3) {
-                /* now change dataset to send an invalid GOOSE message */
+                // now change dataset to send an invalid GOOSE message 
                 LinkedList_add(dataSetValues, MmsValue_newBoolean(true));
                 GoosePublisher_publish(publisher, dataSetValues);
             }
@@ -73,6 +76,7 @@ main(int argc, char **argv)
                 }
             }
         }
+    */
 
         GoosePublisher_destroy(publisher);
     }
