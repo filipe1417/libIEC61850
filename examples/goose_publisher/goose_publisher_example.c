@@ -13,6 +13,11 @@
 #include "hal_thread.h"
 
 /* has to be executed as root! */
+
+//void eventoOcorreu(){
+
+//}
+
 int
 main(int argc, char **argv)
 {
@@ -26,10 +31,16 @@ main(int argc, char **argv)
     printf("Using interface %s\n", interface);
 
     LinkedList dataSetValues = LinkedList_create();
+    LinkedList dataSetValuesAuxiliar = LinkedList_create();
+
 
     LinkedList_add(dataSetValues, MmsValue_newIntegerFromInt32(1234));
     LinkedList_add(dataSetValues, MmsValue_newBinaryTime(false));
     LinkedList_add(dataSetValues, MmsValue_newIntegerFromInt32(5678));
+
+    dataSetValuesAuxiliar = dataSetValues;
+    bool eventoOcorreu = false;
+
 
     CommParameters gooseCommParameters;
 
@@ -57,28 +68,64 @@ main(int argc, char **argv)
         GoosePublisher_setDataSetRef(publisher, "simpleIOGenericIO/LLN0$AnalogValues");
         GoosePublisher_setTimeAllowedToLive(publisher, 500);
 
-        if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
-                    printf("Error sending message!\n");
-                }
-	/* int i = 0;
 
-        for (i = 0; i < 4; i++) {
-            Thread_sleep(1000);
 
-            if (i == 3) {
-                // now change dataset to send an invalid GOOSE message 
-                LinkedList_add(dataSetValues, MmsValue_newBoolean(true));
-                GoosePublisher_publish(publisher, dataSetValues);
-            }
-            else {
-                if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
-                    printf("Error sending message!\n");
+        int i = 0;
+        int tempoDeEspera = 2000;
+        int tempoAuxiliar = tempoDeEspera;
+
+        while (dataSetValuesAuxiliar == dataSetValues){
+        
+            if (eventoOcorreu){
+                tempoAuxiliar = tempoDeEspera / 8;
+                while (tempoAuxiliar < tempoDeEspera) {
+                    if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
+                        printf("Error sending message!\n"); 
+                    }
+                    Thread_sleep(tempoAuxiliar);
+                    tempoAuxiliar *= 2;
                 }
+                eventoOcorreu = false;
             }
+
+            if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
+                printf("Error sending message!\n"); 
+            }
+            Thread_sleep(tempoDeEspera);
+            i ++;
+
+            if (i == 4){
+                eventoOcorreu = true;
+            }
+            
+            
+            
+            
+            /*if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
+                printf("Error sending message!\n"); 
+            }
+
+            if (i == 4){
+                printf("Evento aconteceu!!");
+                tempoDeEspera /= 16;
+            }
+
+            else if (i == 8){
+                tempoDeEspera *= 4;
+            }
+
+            else if (i == 10){
+                tempoDeEspera *= 4;
+            }
+
+            
+            Thread_sleep(tempoDeEspera);
+            */
         }
-    */
+        
+        
 
-        GoosePublisher_destroy(publisher);
+            GoosePublisher_destroy(publisher);
     }
     else {
         printf("Failed to create GOOSE publisher. Reason can be that the Ethernet interface doesn't exist or root permission are required.\n");
