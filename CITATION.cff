@@ -1,1 +1,7 @@
-
+cff-version: 1.0
+authors:
+  - family-names: Araújo
+    given-names: Filipe
+    orcid: https://orcid.org/0009-0001-7321-7214
+title: "GOOSE communication testbed"
+version: 1.0
